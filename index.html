@@ -1,150 +1,521 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Supermercado Virtual</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda de Bebidas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --primary-bg: #E0E5CE;
+            --secondary-bg: #F0F3E8;
+            --accent-bg: #F8FAF3;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: white;
+            color: #333;
+        }
+        
+        .btn-wsp {
+            background-color: #25D366;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            gap: 8px;
+        }
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-  
-  <!-- Google Material Icons -->
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        .btn-wsp:hover {
+            background-color: #128C7E;
+        }
 
-  <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f8f8f8;
-      color: #333;
-    }
-    header {
-      background: #007b3e;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-    }
-    main {
-      max-width: 600px;
-      margin: auto;
-      padding: 1rem;
-    }
-    .producto {
-      background: white;
-      margin-bottom: 1rem;
-      padding: 1rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-    .producto label {
-      display: block;
-      margin: 0.5rem 0 0.2rem;
-    }
-    .controls {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-    }
-    select, input[type="number"] {
-      width: 100%;
-      padding: 0.5rem;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-    .whatsapp-btn {
-      display: flex;
-      justify-content: center;
-      margin-top: 2rem;
-    }
-    .btn-wsp {
-      background: #25D366;
-      color: white;
-      padding: 1rem 2rem;
-      border: none;
-      border-radius: 30px;
-      font-size: 1.2rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      text-decoration: none;
-    }
-    .btn-wsp:hover {
-      background: #1ebe5d;
-    }
-    .material-icons {
-      vertical-align: middle;
-    }
-  </style>
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+        }
+
+        .product-image {
+            height: 180px;
+            object-fit: cover;
+            width: 100%;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .price-badge {
+            background-color: var(--primary-bg);
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 4px 8px;
+            border-radius: 16px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .category-selector {
+            display: flex;
+            overflow-x: auto;
+            gap: 8px;
+            padding: 12px 0;
+            margin-bottom: 16px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .category-btn {
+            white-space: nowrap;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background-color: #f0f0f0;
+            font-weight: 500;
+        }
+
+        .category-btn.active {
+            background-color: #333;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            border-radius: 12px;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        @media (min-width: 768px) {
+            .product-image {
+                height: 220px;
+            }
+        }
+    </style>
 </head>
-<body>
-  <header role="banner">
-    <h1>🛒 Supermercado Virtual</h1>
-    <p>Elegí tus productos y hacé tu pedido por WhatsApp</p>
-  </header>
+<body class="flex flex-col min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm py-4 px-4 sticky top-0 z-50">
+        <div class="container mx-auto">
+            <h1 class="text-2xl font-bold text-center">Tienda de Bebidas</h1>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="flex-1 container mx-auto px-4 py-6">
+        <!-- Category Selector -->
+        <div class="category-selector">
+            <button class="category-btn active" data-category="promos">Promociones</button>
+            <button class="category-btn" data-category="gaseosas">Bebidas Gaseosas</button>
+            <button class="category-btn" data-category="alcoholicas">Bebidas Alcohólicas</button>
+        </div>
+        
+        <!-- Promos Section (Default) -->
+        <section id="promos-section" class="category-section">
+            <h2 class="text-xl font-semibold mb-4">Promociones Especiales</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <!-- Promo 1 -->
+                <div class="product-card bg-white border border-gray-200 rounded-lg overflow-hidden">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1554866585-cd94860890b7?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Combo Familiar" class="product-image">
+                        <div class="price-badge">$1,200</div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold">Combo Familiar</h3>
+                        <p class="text-gray-600 text-sm mb-3">2 Coca Cola 2.5L + 2 Fanta 2L + 1 Snacks</p>
+                        
+                        <div class="flex items-center justify-between mb-3">
+                            <div>
+                                <label for="tipo-promo1" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                                <select id="tipo-promo1" class="border rounded p-1 text-sm">
+                                    <option value="unit">Unidad</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="cantidad-promo1" class="block text-sm font-medium text-gray-700 mb-1">Cantidad</label>
+                                <input type="number" id="cantidad-promo1" min="0" value="0" class="border rounded p-1 w-16 text-sm">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Promo 2 -->
+                <div class="product-card bg-white border border-gray-200 rounded-lg overflow-hidden">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1600721391689-2564bb8055de?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Combo Refrescante" class="product-image">
+                        <div class="price-badge">$950</div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold">Combo Refrescante</h3>
+                        <p class="text-gray-600 text-sm mb-3">3 Jugos 1L + 2 Aguas Minerales</p>
+                        
+                        <div class="flex items-center justify-between mb-3">
+                            <div>
+                                <label for="tipo-promo2" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                                <select id="tipo-promo2" class="border rounded p-1 text-sm">
+                                    <option value="unit">Unidad</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="cantidad-promo2" class="block text-sm font-medium text-gray-700 mb-1">Cantidad</label>
+                                <input type="number" id="cantidad-promo2" min="0" value="0" class="border rounded p-1 w-16 text-sm">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Gaseosas Section (Hidden by default) -->
+        <section id="gaseosas-section" class="category-section hidden">
+            <h2 class="text-xl font-semibold mb-4">Bebidas Gaseosas</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <!-- Gaseosa 1 -->
+                <div class="product-card bg-white border border-gray-200 rounded-lg overflow-hidden">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1554866585-cd94860890b7?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Coca Cola" class="product-image">
+                        <div class="price-badge">$150</div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold">Coca Cola</h3>
+                        <p class="text-gray-600 text-sm mb-3">Botella 2.5L</p>
+                        
+                        <div class="flex items-center justify-between mb-3">
+                            <div>
+                                <label for="tipo-gaseosa1" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                                <select id="tipo-gaseosa1" class="border rounded p-1 text-sm">
+                                    <option value="unit">Unidad</option>
+                                    <option value="pack">Pack (6 unidades)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="cantidad-gaseosa1" class="block text-sm font-medium text-gray-700 mb-1">Cantidad</label>
+                                <input type="number" id="cantidad-gaseosa1" min="0" value="0" class="border rounded p-1 w-16 text-sm">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gaseosa 2 -->
+                <div class="product-card bg-white border border-gray-200 rounded-lg overflow-hidden">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1601050690597-df0568f70950?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Sprite" class="product-image">
+                        <div class="price-badge">$140</div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold">Sprite</h3>
+                        <p class="text-gray-600 text-sm mb-3">Botella 2L</p>
+                        
+                        <div class="flex items-center justify-between mb-3">
+                            <div>
+                                <label for="tipo-gaseosa2" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                                <select id="tipo-gaseosa2" class="border rounded p-1 text-sm">
+                                    <option value="unit">Unidad</option>
+                                    <option value="pack">Pack (6 unidades)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="cantidad-gaseosa2" class="block text-sm font-medium text-gray-700 mb-1">Cantidad</label>
+                                <input type="number" id="cantidad-gaseosa2" min="0" value="0" class="border rounded p-1 w-16 text-sm">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Alcoholicas Section (Hidden by default) -->
+        <section id="alcoholicas-section" class="category-section hidden">
+            <h2 class="text-xl font-semibold mb-4">Bebidas Alcohólicas</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <!-- Alcoholica 1 -->
+                <div class="product-card bg-white border border-gray-200 rounded-lg overflow-hidden">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1600788886242-5c96aabe3757?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Cerveza Heineken" class="product-image">
+                        <div class="price-badge">$350</div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold">Cerveza Heineken</h3>
+                        <p class="text-gray-600 text-sm mb-3">Lata 473ml</p>
+                        
+                        <div class="flex items-center justify-between mb-3">
+                            <div>
+                                <label for="tipo-alcohol1" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                                <select id="tipo-alcohol1" class="border rounded p-1 text-sm">
+                                    <option value="unit">Unidad</option>
+                                    <option value="pack">Pack (12 unidades)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="cantidad-alcohol1" class="block text-sm font-medium text-gray-700 mb-1">Cantidad</label>
+                                <input type="number" id="cantidad-alcohol1" min="0" value="0" class="border rounded p-1 w-16 text-sm">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Alcoholica 2 -->
+                <div class="product-card bg-white border border-gray-200 rounded-lg overflow-hidden">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1600788886242-5c96aabe3757?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Vino Malbec" class="product-image">
+                        <div class="price-badge">$850</div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold">Vino Malbec</h3>
+                        <p class="text-gray-600 text-sm mb-3">Botella 750ml</p>
+                        
+                        <div class="flex items-center justify-between mb-3">
+                            <div>
+                                <label for="tipo-alcohol2" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                                <select id="tipo-alcohol2" class="border rounded p-1 text-sm">
+                                    <option value="unit">Unidad</option>
+                                    <option value="pack">Pack (6 unidades)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="cantidad-alcohol2" class="block text-sm font-medium text-gray-700 mb-1">Cantidad</label>
+                                <input type="number" id="cantidad-alcohol2" min="0" value="0" class="border rounded p-1 w-16 text-sm">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Action Buttons -->
+        <div class="mt-8">
+            <button id="ver-pedido-btn" class="btn-secondary w-full">
+                <span class="material-icons">shopping_cart</span> Ver mi pedido
+            </button>
+            <a id="wsp-link" class="btn-wsp w-full" href="#" target="_blank" rel="noopener" aria-label="Enviar pedido por WhatsApp">
+                <span class="material-icons">chat</span> Enviar pedido por WhatsApp
+            </a>
+        </div>
+    </main>
 
-  <main role="main">
-    <section class="producto" aria-labelledby="prod1">
-      <h2 id="prod1">Gaseosa Coca Cola 2.5 Lts</h2>
-      <label for="cantidad1">Cantidad</label>
-      <input type="number" id="cantidad1" min="0" value="0" aria-describedby="desc1">
-      <label for="tipo1">Tipo</label>
-      <select id="tipo1" aria-label="Tipo de unidad">
-        <option value="pack">Pack</option>
-        <option value="unidad">Unidad</option>
-      </select>
-    </section>
-
-    <section class="producto" aria-labelledby="prod2">
-      <h2 id="prod2">Gaseosa Marca2 1.5 Lts</h2>
-      <label for="cantidad2">Cantidad</label>
-      <input type="number" id="cantidad2" min="0" value="0" aria-describedby="desc2">
-      <label for="tipo2">Tipo</label>
-      <select id="tipo2" aria-label="Tipo de unidad">
-        <option value="unidad">Unidad</option>
-        <option value="pack">Pack</option>
-      </select>
-    </section>
-
-    <div class="whatsapp-btn">
-      <a id="wsp-link" class="btn-wsp" href="#" target="_blank" rel="noopener" aria-label="Enviar pedido por WhatsApp">
-        <span class="material-icons">chat</span> Enviar pedido por WhatsApp
-      </a>
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal material-icons" id="close-modal">close</span>
+            <h2 class="text-xl font-semibold mb-6">Mi Pedido</h2>
+            
+            <div id="cart-items" class="space-y-4 mb-6">
+                <p class="text-gray-500 text-center">Tu carrito está vacío</p>
+            </div>
+            
+            <div class="border-t border-gray-200 pt-4 mb-6">
+                <div class="flex justify-between mb-2">
+                    <span>Subtotal</span>
+                    <span id="subtotal" class="font-bold">$0.00</span>
+                </div>
+                <div class="flex justify-between mb-2">
+                    <span>Envío</span>
+                    <span class="font-bold">$0.00</span>
+                </div>
+                <div class="flex justify-between font-bold text-lg">
+                    <span>Total</span>
+                    <span id="total">$0.00</span>
+                </div>
+            </div>
+            
+            <button class="w-full bg-gray-800 text-white py-3 rounded-lg font-medium hover:bg-gray-700 transition">
+                Finalizar Compra
+            </button>
+        </div>
     </div>
-  </main>
 
-  <script>
-    const wspBtn = document.getElementById('wsp-link');
-    const phoneNumber = '5492612751564'; // Reemplaza con tu número
+    <script>
+        // Product data
+        const products = [
+            // Promos
+            { id: 'promo1', name: 'Combo Familiar', description: '2 Coca Cola 2.5L + 2 Fanta 2L + 1 Snacks', price: 1200, unitType: 'unit', packType: 'unit', packSize: 1, category: 'promos' },
+            { id: 'promo2', name: 'Combo Refrescante', description: '3 Jugos 1L + 2 Aguas Minerales', price: 950, unitType: 'unit', packType: 'unit', packSize: 1, category: 'promos' },
+            
+            // Gaseosas
+            { id: 'gaseosa1', name: 'Coca Cola', description: 'Botella 2.5L', price: 150, unitType: 'unit', packType: 'pack', packSize: 6, category: 'gaseosas' },
+            { id: 'gaseosa2', name: 'Sprite', description: 'Botella 2L', price: 140, unitType: 'unit', packType: 'pack', packSize: 6, category: 'gaseosas' },
+            
+            // Alcoholicas
+            { id: 'alcohol1', name: 'Cerveza Heineken', description: 'Lata 473ml', price: 350, unitType: 'unit', packType: 'pack', packSize: 12, category: 'alcoholicas' },
+            { id: 'alcohol2', name: 'Vino Malbec', description: 'Botella 750ml', price: 850, unitType: 'unit', packType: 'pack', packSize: 6, category: 'alcoholicas' }
+        ];
 
-    wspBtn.addEventListener('click', function(event) {
-      event.preventDefault();
+        // Category selector
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        const categorySections = document.querySelectorAll('.category-section');
 
-      let mensaje = 'Hola, quiero hacer un pedido:\n';
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons
+                categoryBtns.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                btn.classList.add('active');
+                
+                // Hide all sections
+                categorySections.forEach(section => section.classList.add('hidden'));
+                
+                // Show selected section
+                const category = btn.dataset.category;
+                document.getElementById(`${category}-section`).classList.remove('hidden');
+            });
+        });
 
-      const productos = [
-        {
-          nombre: 'Gaseosa Coca Cola 2.5 Lts',
-          cantidad: document.getElementById('cantidad1').value,
-          tipo: document.getElementById('tipo1').value
-        },
-        {
-          nombre: 'Gaseosa Marca2 1.5 Lts',
-          cantidad: document.getElementById('cantidad2').value,
-          tipo: document.getElementById('tipo2').value
+        // Cart modal
+        const cartModal = document.getElementById('cart-modal');
+        const verPedidoBtn = document.getElementById('ver-pedido-btn');
+        const closeModalBtn = document.getElementById('close-modal');
+
+        verPedidoBtn.addEventListener('click', () => {
+            updateCart();
+            cartModal.style.display = 'flex';
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            cartModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === cartModal) {
+                cartModal.style.display = 'none';
+            }
+        });
+
+        // Update cart function
+        function updateCart() {
+            const cartItemsContainer = document.getElementById('cart-items');
+            let subtotal = 0;
+            let cartHTML = '';
+            
+            // Check if any product has quantity > 0
+            let hasItems = false;
+            
+            products.forEach(product => {
+                const quantityInput = document.getElementById(`cantidad-${product.id}`);
+                const typeSelect = document.getElementById(`tipo-${product.id}`);
+                const quantity = parseInt(quantityInput.value);
+                
+                if (quantity > 0) {
+                    hasItems = true;
+                    const isPack = typeSelect.value === product.packType;
+                    const itemPrice = isPack ? product.price * product.packSize : product.price;
+                    const totalPrice = itemPrice * quantity;
+                    subtotal += totalPrice;
+                    
+                    cartHTML += `
+                        <div class="border-b border-gray-200 pb-4">
+                            <div class="flex justify-between">
+                                <h3 class="font-medium">${product.name}</h3>
+                                <button onclick="removeItem('${product.id}')" class="text-red-500 text-sm">Eliminar</button>
+                            </div>
+                            <p class="text-sm text-gray-500">${product.description}</p>
+                            <p class="text-sm">${quantity} ${isPack ? 'packs' : 'unidades'} x $${itemPrice.toFixed(2)}</p>
+                            <p class="font-bold">$${totalPrice.toFixed(2)}</p>
+                        </div>
+                    `;
+                }
+            });
+            
+            if (!hasItems) {
+                cartHTML = '<p class="text-gray-500 text-center">Tu carrito está vacío</p>';
+            }
+            
+            cartItemsContainer.innerHTML = cartHTML;
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('total').textContent = `$${subtotal.toFixed(2)}`;
         }
-      ];
-
-      productos.forEach(p => {
-        if (parseInt(p.cantidad) > 0) {
-          mensaje += `${p.nombre} = ${p.cantidad} ${p.tipo}\n`;
+        
+        // Remove item function
+        function removeItem(productId) {
+            const quantityInput = document.getElementById(`cantidad-${productId}`);
+            quantityInput.value = 0;
+            updateCart();
         }
-      });
-
-      const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(mensaje)}`;
-      window.open(url, '_blank');
-    });
-  </script>
+        
+        // Initialize event listeners for quantity inputs
+        products.forEach(product => {
+            const quantityInput = document.getElementById(`cantidad-${product.id}`);
+            const typeSelect = document.getElementById(`tipo-${product.id}`);
+            
+            if (quantityInput && typeSelect) {
+                quantityInput.addEventListener('change', updateCart);
+                typeSelect.addEventListener('change', updateCart);
+            }
+        });
+        
+        // WhatsApp order button
+        const wspBtn = document.getElementById('wsp-link');
+        const phoneNumber = '5492612751564'; // Reemplaza con tu número
+        
+        wspBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            
+            let message = 'Hola, quiero hacer un pedido:\n\n';
+            let total = 0;
+            
+            products.forEach(product => {
+                const quantity = parseInt(document.getElementById(`cantidad-${product.id}`)?.value || 0);
+                const type = document.getElementById(`tipo-${product.id}`)?.value || 'unit';
+                
+                if (quantity > 0) {
+                    const isPack = type === product.packType;
+                    const itemPrice = isPack ? product.price * product.packSize : product.price;
+                    const itemTotal = itemPrice * quantity;
+                    total += itemTotal;
+                    
+                    message += `${product.name} (${product.description}) = ${quantity} ${isPack ? 'packs' : 'unidades'} x $${itemPrice} = $${itemTotal}\n`;
+                }
+            });
+            
+            if (total === 0) {
+                alert('Por favor agrega items a tu carrito antes de enviar el pedido.');
+                return;
+            }
+            
+            message += `\nTotal: $${total}`;
+            
+            const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+        });
+    </script>
 </body>
 </html>
